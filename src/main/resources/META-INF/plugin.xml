@@ -1,0 +1,165 @@
+<idea-plugin>
+  <id>anaribeiro.ist.EcoAndroid</id>
+  <name>EcoAndroid</name>
+  <vendor email="anasofiaribeiro@tecnico.ulisboa.pt">SR-Lab</vendor>
+
+  <description><![CDATA[
+<p>EcoAndroid suggests automated refactorings for reducing the energy consumption of Java Android applications. It is based on the idea of <i>energy pattern</i> and it has already been used to improve the energy efficiency of dozens of Android applications.</p>
+<p><b>It currently supports the detection and correction of the following energy patterns:</b>
+<ul>
+<li><i>Dynamic Retry Delay</i>: increase the interval between attempts to access a resource, avoiding regular accesses to a resource that most likely went down.</li>
+<li><i>Push Over Poll</i>: use push notifications instead of actively querying resources, such as polling.</li>
+<li><i>Reduce Size</i>: reduce the size of the data being transferred as much as possible, therefore reducing the energy being used in the transfer.</li>
+<li><i>Cache</i>: store data that is being used frequently, which results in a lower energy consumption since it reduces the amount of code executed and the number of accesses to retrieve information.</li>
+<li><i>Avoid Graphics and Animations</i>: reduce the display of graphics and animations, since the use of this type of resources increases energy consumption.</li>
+</ul></p>
+<p><b>Extension developed by Gonçalo Pereira as part of a Master's dissertation at University of Minho, implementing communication with LLMs</b></p>
+]]></description>
+
+    <!-- Android Studio 4.0+ -->
+    <!-- see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html -->
+  <idea-version since-build="212" until-build="999.*"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
+  <!--depends>com.intellij.java</depends-->
+  <depends>org.jetbrains.android</depends>
+
+  <depends>com.intellij.modules.lang</depends>
+
+
+
+    <extensions defaultExtensionNs="com.intellij">
+    <!-- DYNAMIC RETRY DELAY  -->
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Dynamic Retry Delay Energy Pattern - switching to a dynamic wait time between resource attempts"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="DynamicRetryDelay.DynamicWaitTime.DynamicWaitTimeInspection"/>
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Dynamic Retry Delay Energy Pattern - checking network connection before processing request"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="DynamicRetryDelay.CheckNetwork.CheckNetworkInspection"/>
+    <!-- PUSH OVER POLL  -->
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Push Over Poll Energy Pattern - info warning about Firebase Cloud Messaging"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="PushOverPoll.InfoWarningFCMInspection"/>
+    <!-- CACHE  -->
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Cache Energy Pattern - checking values before processing them"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="Cache.CheckMetadata.CheckMetadataInspection"/>
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Cache Energy Pattern - checking layout size"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="Cache.CheckLayoutSize.CheckLayoutSizeInspection"/>
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Cache Energy Pattern - SSL session caching"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="Cache.SSLSessionCaching.SSLSessionCachingInspection"/>
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Cache Energy Pattern - switching to PASSIVE_PROVIDER"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="Cache.PassiveProviderLocation.PassiveProviderLocationInspection"/>
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Cache Energy Pattern - adding caching mechanism to URL Connection"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="Cache.URLCaching.URLCachingInspection"/>
+    <!-- AVOID EXTRANEOUS GRAPHICS AND ANIMATIONS -->
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Avoid Extraneous Graphics and Animations Energy Pattern - only rendering when surface is created or when requested"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="AvoidExtraneousGraphicsAndAnimations.DirtyRenderingInspection"/>
+    <!-- REDUCE SIZE -->
+    <localInspection
+            language="JAVA"
+            displayName="EcoAndroid: Reduce Size Energy Pattern - gzip compression on HTTP Request"
+            groupPath="Java"
+            groupBundle="messages.InspectionsBundle"
+            groupKey="group.names.probable.bugs"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="ReduceSize.GZIPCompressionInspection"/>
+    <!-- LLM Notifications -->
+    <notificationGroup id="LLM Notifications" displayType="BALLOON" />
+    <!-- LLM Settings -->
+    <applicationConfigurable instance="LLMIntegration.Settings"/>
+  </extensions>
+    <actions>
+        <group id="LLMSuggestionsGroup" text="Optimise Code"
+               description="Get model suggestions for code improvement" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+
+            <!-- Option 1 - All Categories -->
+            <action id="LLMSuggestions.Default" class="LLMIntegration.DefaultAction" text="All Categories"
+                    description="Get model suggestions for code improvement - All Categories" />
+
+            <separator/>
+
+            <!-- Option 2 - Energy -->
+            <action id="LLMSuggestions.Energy" class="LLMIntegration.EnergyAction" text="Energy"
+                    description="Get model suggestions for code improvement - Energy level" />
+
+            <!-- Option 3 - Memory -->
+            <action id="LLMSuggestions.Memory" class="LLMIntegration.MemoryAction" text="Memory"
+                    description="Get model suggestions for code improvement - Memory level" />
+
+            <!-- Option 4 - Runtime -->
+            <action id="LLMSuggestions.Runtime" class="LLMIntegration.RuntimeAction" text="Runtime"
+                    description="Get model suggestions for code improvement - Runtime level" />
+
+            <separator/>
+
+            <!-- Option 5 - Generate Documentation -->
+            <action id="LLMSuggestions.Documentation" class="LLMIntegration.DocumentationAction" text="Generate Documentation"
+                    description="Generate automatic (model suggested) documentation for the selected method" />
+        </group>
+    </actions>
+</idea-plugin>

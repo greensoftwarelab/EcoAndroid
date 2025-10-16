@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '1.17.3'
+}
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+group 'anaribeiro.ist'
+version '1.0.3.1'
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+intellij {
+    version = '2021.2'
+    type = 'IC' // IC = IntelliJ IDEA Community
+    plugins = ['java', 'android']
+    updateSinceUntilBuild = false
+}
+
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'org.json:json:20240303'
+}
